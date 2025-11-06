@@ -32,22 +32,22 @@ jobs:
         include:
           - name: "3.9-remote-data"
             python-version: "3.9"
-            pytest-command: poetry run pytest --remote-data --doctest-modules
+            pytest-command: $POETRY_HOME/bin/poetry run pytest --remote-data --doctest-modules
           - name: "3.9-memtest"
             python-version: "3.9"
-            pytest-command: poetry run pytest -m memtest --remote-data
+            pytest-command: $POETRY_HOME/bin/poetry run pytest -m memtest --remote-data
           - name: "3.10"
             python-version: "3.10"
-            pytest-command: poetry run pytest
+            pytest-command: $POETRY_HOME/bin/poetry run pytest
           - name: "3.11"
             python-version: "3.11"
-            pytest-command: poetry run pytest
+            pytest-command: $POETRY_HOME/bin/poetry run pytest
           - name: "3.12-remote-data"
             python-version: "3.12"
-            pytest-command: poetry run pytest
+            pytest-command: $POETRY_HOME/bin/poetry run pytest
           - name: "3.13"
             python-version: "3.13"
-            pytest-command: poetry run pytest
+            pytest-command: $POETRY_HOME/bin/poetry run pytest
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -60,7 +60,7 @@ jobs:
         export POETRY_HOME=~/poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/pip install poetry==2.2.1
-        poetry install --with dev
+        $POETRY_HOME/bin/poetry install --with dev
     - name: Test with ${{ matrix.pytest-command }}
       run: |
         ${{ matrix.pytest-command }}
@@ -84,10 +84,10 @@ jobs:
         export POETRY_HOME=~/poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/pip install poetry==2.2.1
-        poetry install --with dev
+        $POETRY_HOME/bin/poetry install --with dev
     - name: Test with pytest
       run: |
-        poetry run pytest
+        $POETRY_HOME/bin/poetry run pytest
 
   # Run unit tests on Mac OSX
   pytest-osx:
@@ -107,10 +107,10 @@ jobs:
         export POETRY_HOME=~/poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/pip install poetry==2.2.1
-        poetry install --with dev
+        $POETRY_HOME/bin/poetry install --with dev
     - name: Test with pytest
       run: |
-        poetry run pytest
+        $POETRY_HOME/bin/poetry run pytest
 
   # Use the `flake8` tool to check for syntax errors
   flake8-linter:
@@ -130,10 +130,10 @@ jobs:
         export POETRY_HOME=~/poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/pip install poetry==2.2.1
-        poetry install --with dev
+        $POETRY_HOME/bin/poetry install --with dev
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude="setup.py,test_*"
+        $POETRY_HOME/bin/poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude="setup.py,test_*"
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude="setup.py,test_*"
+        $POETRY_HOME/bin/poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude="setup.py,test_*"
