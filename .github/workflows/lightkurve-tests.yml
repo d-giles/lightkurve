@@ -56,6 +56,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        mkdir poetry
         export POETRY_HOME=./poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/python -m pip install --upgrade pip
@@ -80,6 +81,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        mkdir poetry
         export POETRY_HOME=./poetry
         python -m venv $POETRY_HOME
         & "$POETRY_HOME/bin/python" -m pip install --upgrade pip
@@ -103,6 +105,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        mkdir poetry
         export POETRY_HOME=./poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/python -m pip install --upgrade pip
@@ -126,6 +129,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install flake8
       run: |
+        mkdir poetry
         export POETRY_HOME=./poetry
         python -m venv $POETRY_HOME
         $POETRY_HOME/bin/python -m pip install --upgrade pip
