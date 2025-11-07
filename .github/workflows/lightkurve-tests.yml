@@ -82,12 +82,12 @@ jobs:
       run: |
         mkdir poetry
         python -m venv ./poetry
-        ./poetry/bin/python -m pip install --upgrade pip
-        ./poetry/bin/pip install poetry==2.2.1
-        ./poetry/bin/poetry install --with dev
+        & "./poetry/bin/python" -m pip install --upgrade pip
+        & "./poetry/bin/pip" install poetry==2.2.1
+        & "./poetry/bin/poetry" install --with dev
     - name: Test with pytest
       run: |
-        ./poetry/bin/poetry run pytest
+        & "./poetry/bin/poetry" run pytest
 
   # Run unit tests on Mac OSX
   pytest-osx:
@@ -134,6 +134,6 @@ jobs:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        ./poetry/bin/poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude="setup.py,test_*"
+        ./poetry/bin/poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude="setup.py,test_*,poetry"
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        ./poetry/bin/poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude="setup.py,test_*"
+        ./poetry/bin/poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude="setup.py,test_*,poetry"
