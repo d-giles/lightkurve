@@ -81,13 +81,13 @@ jobs:
     - name: Install dependencies
       run: |
         mkdir poetry
-        python -m venv ./poetry
-        .\poetry/bin/python -m pip install --upgrade pip
-        .\poetry/bin/pip install poetry==2.2.1
-        .\poetry/bin/poetry install --with dev
+        python -m venv poetry
+        .\poetry\bin\python -m pip install --upgrade pip
+        .\poetry\bin\pip install poetry==2.2.1
+        .\poetry\bin\poetry install --with dev
     - name: Test with pytest
       run: |
-        .\poetry/bin/poetry run pytest
+        .\poetry\bin\poetry run pytest
 
   # Run unit tests on Mac OSX
   pytest-osx:
