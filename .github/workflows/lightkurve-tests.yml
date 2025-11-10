@@ -82,12 +82,13 @@ jobs:
       run: |
         mkdir poetry
         python -m venv poetry
-        & ".\poetry\bin\python -m pip install --upgrade pip"
-        & ".\poetry\bin\pip install poetry==2.2.1"
-        & ".\poetry\bin\poetry install --with dev"
+        $pythonProgramPath = ".\poetry\bin\python"
+        & $pythonProgramPath -m pip install --upgrade pip
+        & $pythonProgramPath -m pip install poetry==2.2.1
+        & $pythonProgramPath -m poetry install --with dev
     - name: Test with pytest
       run: |
-        & ".\poetry\bin\poetry run pytest"
+        & $pythonProgramPath poetry run pytest
 
   # Run unit tests on Mac OSX
   pytest-osx:
