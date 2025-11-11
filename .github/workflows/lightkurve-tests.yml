@@ -46,4 +46,5 @@ jobs:
         poetry install --with dev
     - name: Test with pytest
       run: |
+        .\poetry\Scripts\activate.ps1
         poetry run pytest
