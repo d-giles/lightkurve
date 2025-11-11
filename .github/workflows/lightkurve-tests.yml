@@ -40,7 +40,10 @@ jobs:
       run: |
         mkdir poetry
         python -m venv poetry
-        ls poetry
-    # - name: Test with pytest
-    #   run: |
-    #     python -m poetry run pytest
+        .\poetry\Scripts\activate.ps1
+        python -m pip install --upgrade pip
+        python -m pip install poetry
+        poetry install --with dev
+    - name: Test with pytest
+      run: |
+        python -m poetry run pytest
