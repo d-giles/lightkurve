@@ -70,6 +70,7 @@ def test_tpf_shapes():
     for tpf in tpfs:
         assert tpf.quality_mask.shape == tpf.hdu[1].data["TIME"].shape
         assert tpf.flux.shape == tpf.flux_err.shape
+        tpf.hdu.close()
 
 
 def test_tpf_math():
@@ -129,6 +130,8 @@ def test_tpf_math():
                 np.isfinite(tpf.flux)
             ]
         )
+        for tpf in tpfs:
+            tpf.hdu.close()
 
 
 def test_tpf_plot():
@@ -165,7 +168,7 @@ def test_tpf_plot():
             tpf.plot(column="not a column")
 
         plt.close("all")
-
+        tpf.hdu.close()
 
 def test_tpf_zeros():
     """Does the LightCurve of a zero-flux TPF make sense?"""
@@ -180,6 +183,7 @@ def test_tpf_zeros():
     )  # Using the property that NaN does not equal NaN
     # When you do mask out bad data everything should work.
     assert (tpf.time.value == 0).any()
+    tpf.hdu.close()
     tpf = KeplerTargetPixelFile(filename_tpf_all_zeros, quality_bitmask="hard")
     lc = tpf.to_lightcurve(aperture_mask="all")
     assert len(lc.time) == len(lc.flux)
@@ -187,6 +191,7 @@ def test_tpf_zeros():
     assert np.all(np.isnan(lc.flux))  # we expect all NaNs because of #874
     # The default QUALITY bitmask should have removed all NaNs in the TIME
     assert ~np.any(np.isnan(tpf.time.value))
+    tpf.hdu.close()
 
 
 @pytest.mark.parametrize("centroid_method", [("moments"), ("quadratic")])
@@ -208,6 +213,7 @@ def test_tpf_ones(centroid_method):
         # This is a regression test for #1103.
         assert np.all(lc.centroid_row.value == tpf.row + 1)
         assert np.all(lc.centroid_col.value == tpf.column + 1)
+        tpf.hdu.close()
 
 
 @pytest.mark.parametrize(
@@ -233,6 +239,7 @@ def test_bitmasking(quality_bitmask, answer):
         warnings.simplefilter("ignore", LightkurveWarning)
         lc = tpf.to_lightcurve()
     assert len(lc.flux) == answer
+    tpf.hdu.close()
 
 
 def test_wcs():
@@ -246,6 +253,7 @@ def test_wcs():
         assert ra.shape == tpf.shape
         assert dec.shape == tpf.shape
         assert type(w).__name__ == "WCS"
+        tpf.hdu.close()
 
 
 @pytest.mark.parametrize("method", [("moments"), ("quadratic")])
@@ -261,6 +269,7 @@ def test_wcs_tabby(method):
     # Compare with RA and Dec from Simbad
     assert np.isclose(ra[x, y], 301.5643971, 1e-4)
     assert np.isclose(dec[x, y], 44.4568869, 1e-4)
+    tpf.hdu.close()
 
 
 def test_centroid_methods_consistency():
@@ -298,6 +307,7 @@ def test_properties():
     assert_array_equal(tpf.quality, tpf.hdu[1].data["QUALITY"][tpf.quality_mask])
     assert tpf.campaign == tpf.hdu[0].header["CAMPAIGN"]
     assert tpf.quarter is None
+    tpf.hdu.close()
 
 
 def test_repr():
@@ -308,6 +318,7 @@ def test_repr():
     ]:
         str(tpf)
         repr(tpf)
+        tpf.hdu.close()
 
 
 def test_to_lightcurve():
@@ -326,6 +337,7 @@ def test_to_lightcurve():
         else:
             with pytest.raises(ValueError):
                 tpf.to_lightcurve(aperture_mask="pipeline")
+        tpf.hdu.close()
 
 
 def test_bkg_lightcurve():
@@ -339,6 +351,7 @@ def test_bkg_lightcurve():
         assert lc.time.scale == "tdb"
         assert lc.flux.shape == lc.flux_err.shape
         assert len(lc.time) == len(lc.flux)
+        tpf.hdu.close()
 
 
 def test_aperture_photometry():
@@ -354,6 +367,7 @@ def test_aperture_photometry():
         else:
             with pytest.raises(ValueError):
                 tpf.extract_aperture_photometry(aperture_mask="pipeline")
+        tpf.hdu.close()
 
 
 def test_tpf_to_fits():
@@ -370,6 +384,7 @@ def test_tpf_to_fits():
         finally:
             tmp.close()
             os.remove(tmp.name)
+            tpf.hdu.close()
 
 
 def test_tpf_factory():
@@ -417,6 +432,7 @@ def test_tpf_factory():
     assert_array_equal(tpf.flux[9].value, flux_9)
     assert tpf.time[0].value == 5
     assert tpf.time[9].value == 95
+    tpf.hdu.close()
 
     # Can you add the WRONG sized frame?
     flux_wrong = 3 * np.ones((6, 9))
@@ -431,12 +447,12 @@ def test_tpf_factory():
         factory.add_cadence(
             frameno=11, flux=flux_wrong, header={"TSTART": 90, "TSTOP": 100}
         )
-
     # Can we add our own keywords?
     tpf = factory.get_tpf(
         hdu0_keywords={"creator": "Christina TargetPixelFileWriter", "TELESCOP": "TESS"}
     )
     assert tpf.get_keyword("CREATOR") == "Christina TargetPixelFileWriter"
+    tpf.hdu.close()
 
 
 def _create_image_array(header=None, shape=(5, 5)):
@@ -587,6 +603,7 @@ def test_properties2(capfd):
     tpf.show_properties()
     out, err = capfd.readouterr()
     assert len(out) > 1000
+    tpf.hdu.close()
 
 
 def test_interact():
@@ -596,6 +613,7 @@ def test_interact():
         TessTargetPixelFile(filename_tess),
     ]:
         tpf.interact()
+        tpf.hdu.close()
 
 
 @pytest.mark.remote_data
@@ -606,6 +624,7 @@ def test_interact_sky():
         TessTargetPixelFile(filename_tess),
     ]:
         tpf.interact_sky()
+        tpf.hdu.close()
 
 
 @pytest.mark.remote_data  # get_model / get_prf_model relies on calibration files on stsci.edu
@@ -623,6 +642,7 @@ def test_get_models():
             tpf.get_model()
         except ModuleNotFoundError:
             pass
+    tpf.hdu.close()
 
 
 @pytest.mark.remote_data
@@ -636,6 +656,7 @@ def test_tess_simulation():
     col, row = tpf.estimate_centroids()
     # Regression test for https://github.com/lightkurve/lightkurve/pull/236
     assert (tpf.time.value == 0).sum() == 0
+    tpf.hdu.close()
 
 
 def test_threshold_aperture_mask():
@@ -646,6 +667,7 @@ def test_threshold_aperture_mask():
     assert (lc.flux.value == 1).all()
     # The TESS file shows three pixel regions above a 2-sigma threshold;
     # let's make sure the `reference_pixel` argument allows them to be selected.
+    tpf.hdu.close()
     tpf = TessTargetPixelFile(filename_tess)
     assert tpf.create_threshold_mask(threshold=2.0).sum() == 25
     assert (
@@ -653,9 +675,11 @@ def test_threshold_aperture_mask():
     )
     assert tpf.create_threshold_mask(threshold=2.0, reference_pixel=None).sum() == 28
     assert tpf.create_threshold_mask(threshold=2.0, reference_pixel=(5, 0)).sum() == 2
+    tpf.hdu.close()
     # A mask which contains zero-flux pixels should work without crashing
     tpf = KeplerTargetPixelFile(filename_tpf_all_zeros)
     assert tpf.create_threshold_mask().sum() == 9
+    tpf.hdu.close()
 
 
 def test_tpf_tess():
@@ -675,6 +699,7 @@ def test_tpf_tess():
     assert tpf.flux.shape == tpf.flux_err.shape
     tpf.wcs
     col, row = tpf.estimate_centroids()
+    tpf.hdu.close()
 
 
 @pytest.mark.parametrize("tpf_type", [KeplerTargetPixelFile, TessTargetPixelFile])
@@ -702,12 +727,14 @@ def test_tpf_slicing(tpf_type):
         assert frames.shape[1:] == tpf.shape[1:]
         assert_array_equal(frames.time, tpf.time[100:200])
         assert_array_equal(frames.flux, tpf.flux[100:200])
+        tpf.hdu.close()
 
 
 def test_endianness():
     """Regression test for https://github.com/lightkurve/lightkurve/issues/188"""
     tpf = KeplerTargetPixelFile(filename_tpf_one_center)
     tpf.to_lightcurve().to_pandas().describe()
+    tpf.hdu.close()
 
 
 def test_get_keyword():
@@ -715,6 +742,7 @@ def test_get_keyword():
     assert tpf.get_keyword("TELESCOP") == "Kepler"
     assert tpf.get_keyword("TTYPE1", hdu=1) == "TIME"
     assert tpf.get_keyword("DOESNOTEXIST", default=5) == 5
+    tpf.hdu.close()
 
 
 def test_cutout():
@@ -735,6 +763,7 @@ def test_cutout():
         ntpf = tpf.cutout(size=2)
         assert np.prod(ntpf.flux.shape[1:]) == 4
         assert ntpf.targetid == tpf.targetid
+        tpf.hdu.close()
 
 
 def test_aperture_photometry_nan():
@@ -750,6 +779,7 @@ def test_aperture_photometry_nan():
     assert ~np.isnan(lc.flux_err[1])
     assert np.isnan(lc.flux[2])
     assert np.isnan(lc.flux_err[2])
+    tpf.hdu.close()
 
 
 #@pytest.mark.remote_data
@@ -793,6 +823,7 @@ def test_get_header():
     # ``tpf.header`` is deprecated
     with pytest.warns(LightkurveDeprecationWarning, match="deprecated"):
         tpf.header
+    tpf.hdu.close()
 
 
 def test_plot_pixels():
@@ -807,6 +838,7 @@ def test_plot_pixels():
     tpf.plot_pixels(show_flux=True)
     tpf.plot_pixels(corrector_func=lambda x: x)
     plt.close("all")
+    tpf.hdu.close()
 
 
 @pytest.mark.remote_data
@@ -826,12 +858,15 @@ def test_missing_pipeline_mask():
         # the logic will throw an error as it is missing in the TPF
         lc = tpf.to_lightcurve(aperture_mask="pipeline")
 
+    tpf.hdu.close()
+
 
 def test_cutout_quality_masking():
     """Regression test for #813: Does tpf.cutout() maintain the quality mask?"""
     tpf = read(filename_tpf_one_center, quality_bitmask=8192)
     tpfcut = tpf.cutout()
     assert len(tpf) == len(tpfcut)
+    tpf.hdu.close()
 
 
 def test_parse_numeric_aperture_masks():
@@ -842,6 +877,7 @@ def test_parse_numeric_aperture_masks():
     assert mask.dtype == bool
     mask = tpf._parse_aperture_mask(np.zeros(tpf.shape[1:], dtype=int))
     assert mask.dtype == bool
+    tpf.hdu.close()
 
 
 def test_tpf_meta():
@@ -861,16 +897,20 @@ def test_tpf_meta():
     expected = collections.OrderedDict(tpf.meta).__repr__()
     assert tpf.meta.__repr__() == expected
     assert tpf.meta.__str__() == expected
+    tpf.hdu.close()
 
 
 def test_estimate_background():
     """Verifies tpf.estimate_background()."""
     # Create a TPF with 100 electron/second in every pixel
-    tpf = read(filename_tpf_all_zeros) + 100.0
+    _ = read(filename_tpf_all_zeros)
+    tpf = _ + 100.0  # this avoids leaving open several instances of the hdu
+    _.hdu.close()
     # The resulting background should be 100 e/s/pixel
     bg = tpf.estimate_background(aperture_mask="all")
     assert_array_equal(bg.flux.value, 100)
     assert bg.flux.unit == tpf.flux.unit / u.pixel
+    tpf.hdu.close()
 
 
 def test_fluxmode():
@@ -884,11 +924,13 @@ def test_fluxmode():
     assert lc_sum.flux.value[0] == np.nansum(tpf.flux.value[0])
     assert lc_med.flux.value[0] == np.nanmedian(tpf.flux.value[0])
     assert lc_mean.flux.value[0] == np.nanmean(tpf.flux.value[0])
+    tpf.hdu.close()
 
 
 def test_animate():
     tpf = read(filename_tpf_one_center)
     tpf.animate()
+    tpf.hdu.close()
 
 def test_parse_aperture_masks():
     """Regression test for numpy 1.25.0"""
@@ -911,15 +953,18 @@ def test_parse_aperture_masks():
             mask = tpf._parse_aperture_mask(aperture)
             assert isinstance(mask, np.ndarray)
             assert np.issubdtype(mask.dtype, bool)
+        tpf.hdu.close()
 
     # Check pipeline shows that no pixels are selected
     tpf = read(filename_tpf_one_center)
     with pytest.raises(ValueError) as exc:
         tpf._parse_aperture_mask("pipeline")
     assert "'pipeline' is requested, but it is missing or empty" in exc.value.args[0]
+    tpf.hdu.close()
 
     # Check pipeline shows that pixels are selected
     tpf = read(filename_tpf_tabby_lite)
     tpf._parse_aperture_mask("pipeline")
     assert isinstance(mask, np.ndarray)
     assert np.issubdtype(mask.dtype, bool)
+    tpf.hdu.close()

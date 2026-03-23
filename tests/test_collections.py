@@ -246,7 +246,9 @@ def test_collection_setitem():
 
 def test_tpfcollection():
     tpf = KeplerTargetPixelFile(filename_tpf_all_zeros)
+    tpf.hdu.close()
     tpf2 = KeplerTargetPixelFile(filename_tpf_one_center)
+    tpf2.hdu.close()
     tpfc = TargetPixelFileCollection([tpf, tpf2])
     assert len(tpfc) == 2
     assert tpfc.data == [tpf, tpf2]
@@ -263,6 +265,7 @@ def test_tpfcollection():
     assert type(tpfc_f) is TargetPixelFileCollection
     # Test __setitem__
     tpf3 = KeplerTargetPixelFile(filename_tpf_one_center, targetid=55)
+    tpf3.hdu.close()
     tpfc[1] = tpf3
     assert tpfc[1] == tpf3
     tpfc.append(tpf2)
@@ -280,6 +283,8 @@ def test_tpfcollection_plot():
     coll = TargetPixelFileCollection([tpf])
     coll.plot()
     plt.close("all")
+    tpf.hdu.close()
+    tpf2.hdu.close()
 
 
 @pytest.mark.remote_data
@@ -342,6 +347,9 @@ def test_accessor_tess_sector():
         tpf3.hdu[0].header["SECTOR"] = 1
     tpfc = TargetPixelFileCollection([tpf, tpf2, tpf3])
     assert (tpfc.sector == [23, None, 1]).all()
+    tpf.hdu.close()
+    tpf2.hdu.close()
+    tpf3.hdu.close()
 
 
 def test_accessor_kepler_quarter():
@@ -370,6 +378,8 @@ def test_accessor_kepler_quarter():
     tpf1.hdu[0].header["QUARTER"] = 1
     tpfc = TargetPixelFileCollection([tpf0, tpf1])
     assert (tpfc.quarter == [2, 1]).all()
+    tpf0.hdu.close()
+    tpf1.hdu.close()
 
 
 def test_accessor_k2_campaign():
@@ -398,6 +408,8 @@ def test_accessor_k2_campaign():
     tpf1.hdu[0].header["CAMPAIGN"] = 1
     tpfc = TargetPixelFileCollection([tpf0, tpf1])
     assert (tpfc.campaign == [2, 1]).all()
+    tpf0.hdu.close()
+    tpf1.hdu.close()
 
 
 def test_unmergeable_columns():

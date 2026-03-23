@@ -1837,6 +1837,9 @@ def load_kepler_cbvs(cbv_dir=None,mission=None, quarter=None, campaign=None,
     except Exception as e:
         raise Exception('CBVS were not found') from e
 
+    finally:
+        hdu.close()
+
 
 @deprecated("2.1", alternative="load_tess_cbvs", warning_type=LightkurveDeprecationWarning)
 def download_tess_cbvs(*args, **kwargs):
@@ -1976,6 +1979,7 @@ def load_tess_cbvs(cbv_dir=None,sector=None, camera=None,
         validate_method(mission, ['tess'])
 
         return TessCotrendingBasisVectors.from_hdu(hdu=hdu, cbv_type=cbv_type, band=band)
-
     except:
         raise Exception('CBVS were not found')
+    finally:
+        hdu.close()

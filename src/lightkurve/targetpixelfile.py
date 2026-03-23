@@ -161,25 +161,25 @@ class TargetPixelFile(object):
     def __add__(self, other):
         if isinstance(other, Quantity):
             other = other.value
-        hdu = deepcopy(self.hdu)
-        hdu[1].data["FLUX"][self.quality_mask] += other
-        return type(self)(hdu, quality_bitmask=self.quality_bitmask)
+        with deepcopy(self.hdu) as hdu:
+            hdu[1].data["FLUX"][self.quality_mask] += other
+            return type(self)(hdu, quality_bitmask=self.quality_bitmask)
 
     def __mul__(self, other):
         if isinstance(other, Quantity):
             other = other.value
-        hdu = deepcopy(self.hdu)
-        hdu[1].data["FLUX"][self.quality_mask] *= other
-        hdu[1].data["FLUX_ERR"][self.quality_mask] *= other
-        return type(self)(hdu, quality_bitmask=self.quality_bitmask)
+        with deepcopy(self.hdu) as hdu:
+            hdu[1].data["FLUX"][self.quality_mask] *= other
+            hdu[1].data["FLUX_ERR"][self.quality_mask] *= other
+            return type(self)(hdu, quality_bitmask=self.quality_bitmask)
 
     def __rtruediv__(self, other):
         if isinstance(other, Quantity):
             other = other.value
-        hdu = deepcopy(self.hdu)
-        hdu[1].data["FLUX"][self.quality_mask] /= other
-        hdu[1].data["FLUX_ERR"][self.quality_mask] /= other
-        return type(self)(hdu, quality_bitmask=self.quality_bitmask)
+        with deepcopy(self.hdu) as hdu:
+            hdu[1].data["FLUX"][self.quality_mask] /= other
+            hdu[1].data["FLUX_ERR"][self.quality_mask] /= other
+            return type(self)(hdu, quality_bitmask=self.quality_bitmask)
 
     def __radd__(self, other):
         return self.__add__(other)

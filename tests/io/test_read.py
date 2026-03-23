@@ -68,15 +68,23 @@ def test_read_tpf():
     tesstpf = read(tess_path)
     assert isinstance(tesstpf, TessTargetPixelFile)
     # Open should fail if the filetype is not recognized
+    k2tpf.hdu.close()
+    tesstpf.hdu.close()
     try:
         read(os.path.join(PACKAGEDIR, "data", "lightkurve.mplstyle"))
     except LightkurveError:
         pass
     # Can you instantiate with a path?
-    assert isinstance(KeplerTargetPixelFile(k2_path), KeplerTargetPixelFile)
-    assert isinstance(TessTargetPixelFile(tess_path), TessTargetPixelFile)
+    k2tpf = KeplerTargetPixelFile(k2_path)
+    assert isinstance(k2tpf, KeplerTargetPixelFile)
+    tesstpf = TessTargetPixelFile(tess_path)
+    assert isinstance(tesstpf, TessTargetPixelFile)
     # Can open take a quality_bitmask argument?
-    assert read(k2_path, quality_bitmask="hard").quality_bitmask == "hard"
+    k2tpf2 = read(k2_path, quality_bitmask="hard")
+    assert k2tpf2.quality_bitmask == "hard"
+    k2tpf.hdu.close()
+    tesstpf.hdu.close()
+    k2tpf2.hdu.close()
 
 
 def test_read_tpf_cloud():
@@ -84,6 +92,7 @@ def test_read_tpf_cloud():
     cloud_uri = 's3://stpubdata/kepler/public/target_pixel_files/0082/008264588/kplr008264588-2009131105131_lpd-targ.fits.gz'
     tpf = read(cloud_uri)
     assert isinstance(tpf, KeplerTargetPixelFile)
+    tpf.hdu.close()
 
 
 def test_read_lc_collection():
@@ -115,6 +124,8 @@ def test_read_tpf_collection():
 
     collection = read_tpf_collection(path_list)
     assert isinstance(collection, TargetPixelFileCollection)
+    for tpf in collection:
+        tpf.hdu.close()
 
 
 def test_open():
@@ -131,16 +142,17 @@ def test_open():
         assert isinstance(k2tpf, KeplerTargetPixelFile)
         tesstpf = open(tess_path)
         assert isinstance(tesstpf, TessTargetPixelFile)
+        k2tpf.hdu.close()
+        tesstpf.hdu.close()
         # Open should fail if the filetype is not recognized
         try:
             open(os.path.join(PACKAGEDIR, "data", "lightkurve.mplstyle"))
         except LightkurveError:
             pass
-        # Can you instantiate with a path?
-        assert isinstance(KeplerTargetPixelFile(k2_path), KeplerTargetPixelFile)
-        assert isinstance(TessTargetPixelFile(tess_path), TessTargetPixelFile)
         # Can open take a quality_bitmask argument?
-        assert open(k2_path, quality_bitmask="hard").quality_bitmask == "hard"
+        k2tpf2 = open(k2_path, quality_bitmask="hard")
+        assert k2tpf2.quality_bitmask == "hard"
+        k2tpf2.hdu.close()
 
 
 def test_filenotfound():
